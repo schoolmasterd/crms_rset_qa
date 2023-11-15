@@ -1,5 +1,10 @@
+###CRMS RSET QA\QC tool###
 
-######
+
+#set path to folder
+path<-"path/to/crms_rset_qa-main"
+setwd(path)
+
 in_path<-"Data/"
 out_path<-"Output/"
 input_file<-"CRMS_RSET_Sp23_CES_Jan.csv"
