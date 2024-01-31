@@ -89,8 +89,7 @@ if (length(tab_3_pre) == 0)
       check.names = F
     ),
     caption = '3. SET ID AND PREVIOUS SET ID DIFFERENT'
-  )
-else
+  ) else
   tab_3 <- xtable(do.call("rbind", tab_3_pre),
                   caption = '3. SET ID AND PREVIOUS SET ID DIFFERENT')
 
@@ -134,8 +133,7 @@ if (length(tab_4_pre) == 0)
       check.names = F
     ),
     caption = '4. PERSONNEL AND PREVIOUS PERSONNEL DIFFERENT'
-  )
-else
+  ) else
   tab_4 <- xtable(do.call("rbind", tab_4_pre),
                   caption = '4. PERSONNEL AND PREVIOUS PERSONNEL DIFFERENT')
 
@@ -187,8 +185,7 @@ if (length(tab_5_pre) == 0)
       check.names = F
     ),
     caption = '5. COLLAR HEIGHT DIFFERENT FROM PREVIOUS COLLAR HEIGHT'
-  )
-else
+  ) else
   tab_5 <- xtable(do.call("rbind", tab_5_pre),
                   caption =
                     '5. COLLAR HEIGHT DIFFERENT FROM PREVIOUS COLLAR HEIGHT')
@@ -263,8 +260,7 @@ if (length(tab_6_pre) == 0)
       check.names = F
     ),
     caption = '6. COLLAR DIRECTION DIFFERENT FROM PREVIOUS COLLAR DIRECTION'
-  )
-else
+  ) else
   tab_6 <- xtable(do.call("rbind", tab_6_pre),
                   caption = '6. COLLAR DIRECTION DIFFERENT FROM PREVIOUS COLLAR DIRECTION')
 
@@ -281,8 +277,7 @@ if (length(tab_7_pre) == 0)
       check.names = F
     ),
     caption = '7. NEW COLLAR NOT UNIQUE'
-  )
-else
+  ) else
   tab_7 <- xtable(do.call("rbind", tab_7_pre),
                   caption = '7. NEW COLLAR NOT UNIQUE')
 
@@ -304,8 +299,7 @@ if (!any(ans))
       check.names = F
     ),
     caption = '8. NO VERIFIED PIN HEIGHT AND NO OBSERVATION COMMENT'
-  )
-else
+  ) else
   tab_8 <-
   xtable(
     data.frame(
@@ -371,7 +365,8 @@ input_tmp <-
   input_df[which(input_df$`Pin Number` == 1), c("Station ID",
                                                 "Establishment Date (mm/dd/yyyy)",
                                                 "Direction (Collar Number)")]
-
+input_tmp$`Establishment Date (mm/dd/yyyy)`<-as.POSIXct(input_tmp$`Establishment Date (mm/dd/yyyy)`,
+                                                        format="%m/%d/%Y")
 tmp <-
   split(db_new[, c(
     "Station ID",
@@ -393,6 +388,7 @@ tst_db <-
         db_tmp,
         by = c("Station ID", "Direction (Collar Number)"))
 names(tst_db)[3:4] <- c("Estab Date (New)", "Estab Date (Database)")
+#tst_db$`Estab Date (New)`<-as.POSIXlt(tst_db$`Estab Date (New)`,format="%m/%d/%Y")
 tab_12 <-
   xtable(tst_db[which(tst_db$`Estab Date (New)` != tst_db$`Estab Date (Database)`), ], caption =
            "12. ESTABLISHMENT DATE DIFFERENT FOR COLLAR")
@@ -444,8 +440,7 @@ pin_sig <-
     sd,
     na.rm = T
   )
-len
-i
+
 len <- dim(input_df)[1]
 ans <- rep(NA, len)
 for (i in 1:len) {
@@ -464,9 +459,9 @@ output_df <-
     "Direction (Collar Number)" = input_df$`Direction (Collar Number)`[ans],
     "Pin Number" = input_df$`Pin Number`[ans],
     "Verified Pin Height (mm)" = input_df$`Verified Pin Height (mm)`[ans],
-    "Collar Mean (mm)" = pin_mu[cbind(input_df$`Station ID`[ans],
+    "Direction Mean (mm)" = pin_mu[cbind(input_df$`Station ID`[ans],
                                       as.character(input_df$`Direction (Collar Number)`[ans]))],
-    "Collar SD (mm)" = pin_sig[cbind(input_df$`Station ID`[ans],
+    "Direction SD (mm)" = pin_sig[cbind(input_df$`Station ID`[ans],
                                      as.character(input_df$`Direction (Collar Number)`[ans]))],
     check.names = FALSE
   )
@@ -487,18 +482,18 @@ site_sig <-
 
 input_tmp <-
   data.frame(
-    "Station ID" = rep(rownames(pin_mu), dim(pin_mu)[2]),
-    "Direction (Collar Number)" = rep(c(1, 3, 5, 7), 6),
-    "Collar Mean (mm)" = c(pin_mu[1, ], pin_mu[2, ], pin_mu[3, ], pin_mu[4, ], pin_mu[5, ], pin_mu[6, ]),
+    "Station ID" = rep(rownames(pin_mu), each=dim(pin_mu)[2]),
+    "Direction (Collar Number)" = rep(c(1L, 3L, 5L, 7L), 6),
+    "Site Mean (mm)" = c(pin_mu[1, ], pin_mu[2, ], pin_mu[3, ], pin_mu[4, ], pin_mu[5, ], pin_mu[6, ]),
     check.names = F
   )
 len <- dim(input_tmp)[1]
 ans <- rep(NA, len)
 for (i in 1:len)
   ans[i] <-
-  input_tmp$`Collar Mean (mm)`[i] > site_mu[input_tmp$`Station ID`[i]] + 1.96 *
+  input_tmp$`Site Mean (mm)`[i] > site_mu[input_tmp$`Station ID`[i]] + 1.96 *
   site_sig[input_tmp$`Station ID`[i]] |
-  input_tmp$`Collar Mean (mm)`[i] < site_mu[input_tmp$`Station ID`[i]] - 1.96 *
+  input_tmp$`Site Mean (mm)`[i] < site_mu[input_tmp$`Station ID`[i]] - 1.96 *
   site_sig[input_tmp$`Station ID`[i]]
 ans[is.na(ans)] <- FALSE
 output_df <-
