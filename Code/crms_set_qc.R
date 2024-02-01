@@ -493,16 +493,16 @@ input_tmp <-
     "Station ID" = rep(rownames(pin_mu), each=dim(pin_mu)[2]),
     "Sample Date (mm/dd/yyyy)"=c(pin_date[1,],pin_date[2,],pin_date[3,],pin_date[4,],pin_date[5,],pin_date[6,]),
     "Direction (Collar Number)" = rep(c(1L, 3L, 5L, 7L), 6),
-    "Site Mean (mm)" = c(pin_mu[1, ], pin_mu[2, ], pin_mu[3, ], pin_mu[4, ], pin_mu[5, ], pin_mu[6, ]),
+    "Direction Mean (mm)" = c(pin_mu[1, ], pin_mu[2, ], pin_mu[3, ], pin_mu[4, ], pin_mu[5, ], pin_mu[6, ]),
     check.names = F
   )
 len <- dim(input_tmp)[1]
 ans <- rep(NA, len)
 for (i in 1:len)
   ans[i] <-
-  input_tmp$`Site Mean (mm)`[i] > site_mu[input_tmp$`Station ID`[i]] + 1.96 *
+  input_tmp$`Direction Mean (mm)`[i] > site_mu[input_tmp$`Station ID`[i]] + 1.96 *
   site_sig[input_tmp$`Station ID`[i]] |
-  input_tmp$`Site Mean (mm)`[i] < site_mu[input_tmp$`Station ID`[i]] - 1.96 *
+  input_tmp$`Direction Mean (mm)`[i] < site_mu[input_tmp$`Station ID`[i]] - 1.96 *
   site_sig[input_tmp$`Station ID`[i]]
 ans[is.na(ans)] <- FALSE
 
