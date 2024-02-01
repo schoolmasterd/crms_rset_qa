@@ -383,12 +383,13 @@ db_tmp <-
   db_tmp[which(input_df$`Pin Number` == 1), c("Station ID",
                                               "Establishment Date (mm/dd/yyyy)",
                                               "Direction (Collar Number)")]
+db_tmp$`Establishment Date (mm/dd/yyyy)`<-as.POSIXct(db_tmp$`Establishment Date (mm/dd/yyyy)`,
+                                                        format="%m/%d/%Y")
 tst_db <-
   merge(input_tmp,
         db_tmp,
         by = c("Station ID", "Direction (Collar Number)"))
 names(tst_db)[3:4] <- c("Estab Date (New)", "Estab Date (Database)")
-#tst_db$`Estab Date (New)`<-as.POSIXlt(tst_db$`Estab Date (New)`,format="%m/%d/%Y")
 tab_12 <-
   xtable(tst_db[which(tst_db$`Estab Date (New)` != tst_db$`Estab Date (Database)`), ], caption =
            "12. ESTABLISHMENT DATE DIFFERENT FOR COLLAR")
@@ -441,6 +442,13 @@ pin_sig <-
     na.rm = T
   )
 
+pin_date <-
+  tapply(
+    input_df$`Sample Date (mm/dd/yyyy)`,
+    INDEX = list(input_df$`Station ID`, input_df$`Direction (Collar Number)`),
+    unique,
+    na.rm = T
+  )
 len <- dim(input_df)[1]
 ans <- rep(NA, len)
 for (i in 1:len) {
@@ -483,6 +491,7 @@ site_sig <-
 input_tmp <-
   data.frame(
     "Station ID" = rep(rownames(pin_mu), each=dim(pin_mu)[2]),
+    "Sample Date (mm/dd/yyyy)"=c(pin_date[1,],pin_date[2,],pin_date[3,],pin_date[4,],pin_date[5,],pin_date[6,]),
     "Direction (Collar Number)" = rep(c(1L, 3L, 5L, 7L), 6),
     "Site Mean (mm)" = c(pin_mu[1, ], pin_mu[2, ], pin_mu[3, ], pin_mu[4, ], pin_mu[5, ], pin_mu[6, ]),
     check.names = F
@@ -496,6 +505,7 @@ for (i in 1:len)
   input_tmp$`Site Mean (mm)`[i] < site_mu[input_tmp$`Station ID`[i]] - 1.96 *
   site_sig[input_tmp$`Station ID`[i]]
 ans[is.na(ans)] <- FALSE
+
 output_df <-
   data.frame(
     input_tmp[ans, ],
@@ -506,6 +516,7 @@ output_df <-
 tab_15 <-
   xtable(output_df, caption = "15. DIRECTION DIFFERENCE OUTSIDE CI OF SITE")
 
+if(dim(output_df)[1]>0){
 com_list <- list()
 len <- dim(output_df)[1]
 for (i in 1:len)
@@ -519,14 +530,20 @@ for (i in 1:len)
 #combine all unique, non-blank, comments for each
 tab_16 <-
   xtable(data.frame(
-    output_df[, c(1, 2)],
+    output_df[, c(1:3)],
     "Observation Comments" = sapply(com_list,
                                     function(x)
                                       paste(x[grep("\\w", x)], collapse = ";")),
     check.names = F
   ),
+  caption = '16. COMMENTS WHEN DIRECTION DIFFERENCE OUTSIDE CI OF SITE')} else {
+    tab_16 <-
+  xtable(data.frame("Station ID"="","Sample Date (mm/dd/yyyy)"="","Direction (Collar Number)"="",
+    "Observation Comments" = "",
+    check.names = F
+  ),
   caption = '16. COMMENTS WHEN DIRECTION DIFFERENCE OUTSIDE CI OF SITE')
-
+}
 #Omissions to check
 who <- which(is.na(input_df$`Verified Pin Height (mm)`))
 get_em <-
