@@ -154,7 +154,7 @@ for (i in 1:length(last_date)) {
   old_collar <- db_new[who_old, "Direction (Collar Number)"]
   str_old <-
     sapply(strsplit(db_new$`Site Conditions`[who_old], ";"), function(x)
-      x[[grep("Rod to collar", x)]])
+      x[[grep("Rod to collar =", x)]])
   str_new <-
     sapply(strsplit(input_df$`Site Conditions`[who_new], ";"), function(x)
       x[[grep("Rod to collar", x)]])
@@ -419,9 +419,11 @@ for (i in 1:dim(input_tmp)[1]) {
         db_new$`Direction (Collar Number)` == input_tmp$`Direction (Collar Number)`[i] &
         db_new$`Pin Number` == 1
     )
+  if(length(who)==0) dts_match[i]<-FALSE else{
   dts_match[i] <-
     db_new[who, ]$`Establishment Date (mm/dd/yyyy)`[which.min(db_new[who, ]$`Establishment Date (mm/dd/yyyy)`)] ==
     db_new[who, ]$`Sample Date (mm/dd/yyyy)`[which.min(db_new[who, ]$`Establishment Date (mm/dd/yyyy)`)]
+  }
 }
 tab_13 <-
   xtable(input_tmp[!dts_match, ], caption = "13. FIRST SAMPLE DATE FOR COLLAR NOT SAME AS ESTABLISHMENT DATE")
@@ -491,9 +493,9 @@ site_sig <-
 input_tmp <-
   data.frame(
     "Station ID" = rep(rownames(pin_mu), each=dim(pin_mu)[2]),
-    "Sample Date (mm/dd/yyyy)"=c(pin_date[1,],pin_date[2,],pin_date[3,],pin_date[4,],pin_date[5,],pin_date[6,]),
-    "Direction (Collar Number)" = rep(c(1L, 3L, 5L, 7L), 6),
-    "Direction Mean (mm)" = c(pin_mu[1, ], pin_mu[2, ], pin_mu[3, ], pin_mu[4, ], pin_mu[5, ], pin_mu[6, ]),
+    "Sample Date (mm/dd/yyyy)"=c(t(pin_date)),
+    "Direction (Collar Number)" = rep(c(1L, 3L, 5L, 7L), dim(pin_mu)[1]),
+    "Direction Mean (mm)" = c(t(pin_mu)),
     check.names = F
   )
 len <- dim(input_tmp)[1]
@@ -559,7 +561,7 @@ if (length(get_em) > 0) {
       "Sample Date (mm/dd/yyyy)" = input_df$`Sample Date (mm/dd/yyyy)`[who[get_em]],
       "Direction (Collar Number)" = input_df$`Direction (Collar Number)`[who[get_em]],
       "Pin Number" = input_df$`Pin Number`[who[get_em]],
-      "Flagged Comment" = who_1,
+      "Flagged Comment" = who_1[get_em],
       check.names = F
     )
   write.csv(output_17, file = paste0(out_path, "Omissions to check.csv"))
@@ -571,6 +573,8 @@ get_em <-
     "stem|leaf|shoot|grass|leaves|track|animal|burrow|trail|nest|print|eat|graze",
     input_df$`Observation Comments`[who]
   )
+who_1 <- rep(NA, length(who))
+who_1[get_em] <- input_df$`Observation Comments`[who[get_em]]
 if (length(get_em) > 0) {
   output_18 <-
     data.frame(
@@ -578,7 +582,7 @@ if (length(get_em) > 0) {
       "Sample Date (mm/dd/yyyy)" = input_df$`Sample Date (mm/dd/yyyy)`[who[get_em]],
       "Direction (Collar Number)" = input_df$`Direction (Collar Number)`[who[get_em]],
       "Pin Number" = input_df$`Pin Number`[who[get_em]],
-      "Flagged Comment" = who_1,
+      "Flagged Comment" = who_1[get_em],
       check.names = F
     )
   write.csv(output_18, file = paste0(out_path, "Inclusions to check.csv"))
