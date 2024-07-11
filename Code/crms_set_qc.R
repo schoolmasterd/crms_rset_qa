@@ -7,7 +7,7 @@ setwd(path)
 
 in_path <- "Data/"
 out_path <- "Output/"
-input_file <- "CRMS_RSET_Sp23_CES_Jan.csv"
+input_file <- "CRMS_RSET_Sp24_USGS.csv"
 db_file <- "CRMS_RSET_Hist_LRO.csv"
 #read in the new and old data
 input_df <- read.csv(paste0(in_path, input_file), check.names = F)
@@ -157,7 +157,7 @@ for (i in 1:length(last_date)) {
       x[[grep("Rod to collar =", x)]])
   str_new <-
     sapply(strsplit(input_df$`Site Conditions`[who_new], ";"), function(x)
-      x[[grep("Rod to collar", x)]])
+      x[[grep("Rod to collar =", x)]])
   new_ht <- as.numeric(gsub(".*?([0-9]+).*", "\\1", str_new))
   old_ht <- as.numeric(gsub(".*?([0-9]+).*", "\\1", str_old))
   
