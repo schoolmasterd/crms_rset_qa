@@ -7,7 +7,7 @@ setwd(path)
 
 in_path <- "Data/"
 out_path <- "Output/"
-input_file <- "CRMS_RSET_Sp24_USGS.csv"
+input_file <- "CRMS_RSET_Sp24a_USGS.csv"
 db_file <- "CRMS_RSET_Hist_LRO.csv"
 #read in the new and old data
 input_df <- read.csv(paste0(in_path, input_file), check.names = F)
